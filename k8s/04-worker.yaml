@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+  namespace: hashcrack
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: worker
+  template:
+    metadata:
+      labels:
+        app: worker
+    spec:
+      containers:
+        - name: worker
+          image: worker:latest
+          imagePullPolicy: Never        # ← ЭТО КЛЮЧЕВАЯ СТРОКА
+          env:
+            - name: RABBIT_URI
+              value: "amqp://guest:guest@rabbitmq:5672/"
+          readinessProbe:
+            httpGet:
+              path: /hc
+              port: 9000
+            initialDelaySeconds: 3
+            periodSeconds: 5
